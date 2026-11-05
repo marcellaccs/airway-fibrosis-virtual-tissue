@@ -1,0 +1,5 @@
+<Simulation version="4.0.0">
+   <XMLScript Type="XMLScript">Simulation/SBML_DeltaNotch.xml</XMLScript>
+   <PythonScript Type="PythonScript">Simulation/SBML_DeltaNotch.py</PythonScript>
+   <Resource Type="Python">Simulation/SBML_DeltaNotchSteppables.py</Resource>
+</Simulation>

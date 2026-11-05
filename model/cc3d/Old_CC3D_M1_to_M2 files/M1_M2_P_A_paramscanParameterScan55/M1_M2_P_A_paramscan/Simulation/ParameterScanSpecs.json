@@ -1,0 +1,13 @@
+{
+    "version": "4.0.0",
+    "parameter_list": {
+        "LPS_conc": {
+            "original_value": "5.0",
+            "values": [
+                0.0,
+                5,
+                100.0
+            ]
+        }
+    }
+}

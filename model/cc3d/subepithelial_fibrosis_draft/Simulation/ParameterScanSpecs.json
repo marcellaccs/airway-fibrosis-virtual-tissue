@@ -1,0 +1,9 @@
+{
+    "version": "4.0.0",
+    "_comment": "Gate B3 (2026-10-27). iter_count is a dummy replicate index (Module 8.2): it changes nothing in the model; parameters.py turns it into a pinned seed (REPLICATE_SEED_BASE + iter_count) and DiagnosticsSteppable appends one row per iteration to <scan root>/replicates_summary.csv. Six values = the n of the 2026-09-26 baseline. Run: python -m cc3d.core.param_scan.parameter_scan_run -i model/cc3d/subepithelial_fibrosis_draft/subepithelial_fibrosis_draft.cc3d -o results/cc3d/<scan-name> --install-dir .",
+    "parameter_list": {
+        "iter_count": {
+            "values": [0, 1, 2, 3, 4, 5]
+        }
+    }
+}

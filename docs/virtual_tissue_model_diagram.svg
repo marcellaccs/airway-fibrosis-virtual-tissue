@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 720" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 z" fill="#334155"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 z" fill="#1d4ed8"/>
+    </marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 z" fill="#b91c1c"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="920" height="720" fill="#ffffff"/>
+  <text x="460" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">Virtual Tissue Model — Signal Layer Coupled to Tissue Layer</text>
+  <text x="460" y="56" text-anchor="middle" font-size="13" fill="#64748b">Redrawn from handwritten "Model Notes" (see Model_Notes_digitized.md)</text>
+  <text x="460" y="72" text-anchor="middle" font-size="11.5" font-weight="700" fill="#b91c1c">SUPERSEDED for the v1 build (2026-07-26) — see virtual_tissue_model_v1.svg. Retained as the record of the original design.</text>
+
+  <!-- Immune / ODE signal layer -->
+  <rect x="210" y="80" width="500" height="90" rx="10" fill="#eef2ff" stroke="#4338ca" stroke-width="2"/>
+  <text x="460" y="112" text-anchor="middle" font-size="17" font-weight="700" fill="#3730a3">Immune Cell Interaction Layer</text>
+  <text x="460" y="134" text-anchor="middle" font-size="13" fill="#4338ca">ODE model — signal-generating layer</text>
+  <text x="460" y="154" text-anchor="middle" font-size="12" fill="#64748b">outputs cell-population &amp; cytokine concentrations</text>
+
+  <!-- three downward signal arrows -->
+  <line x1="320" y1="170" x2="320" y2="250" stroke="#b91c1c" stroke-width="2.5" marker-end="url(#arrowRed)"/>
+  <text x="320" y="212" text-anchor="middle" font-size="12.5" font-weight="600" fill="#b91c1c">Pro-inflammatory</text>
+  <text x="320" y="228" text-anchor="middle" font-size="11" fill="#b91c1c">(M1, epithelium)</text>
+
+  <line x1="460" y1="170" x2="460" y2="250" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+  <text x="460" y="212" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1d4ed8">TGF-&#946;</text>
+  <text x="460" y="228" text-anchor="middle" font-size="11" fill="#1d4ed8">(M2, anti-inflamm.)</text>
+
+  <line x1="600" y1="170" x2="600" y2="250" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+  <text x="600" y="212" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1d4ed8">MMPs</text>
+  <text x="600" y="228" text-anchor="middle" font-size="11" fill="#1d4ed8">(M2)</text>
+
+  <!-- feedback arrow up -->
+  <path d="M735,250 C 800,230 800,150 720,132" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+  <text x="812" y="200" text-anchor="middle" font-size="11.5" fill="#334155">feedback:</text>
+  <text x="812" y="216" text-anchor="middle" font-size="11.5" fill="#334155">damaged /</text>
+  <text x="812" y="232" text-anchor="middle" font-size="11.5" fill="#334155">reduced</text>
+  <text x="812" y="248" text-anchor="middle" font-size="11.5" fill="#334155">epithelium</text>
+
+  <!-- Tissue model container -->
+  <rect x="150" y="255" width="620" height="410" rx="12" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>
+  <text x="460" y="280" text-anchor="middle" font-size="16" font-weight="700" fill="#0f172a">Tissue Model (CompuCell3D lattice)</text>
+
+  <!-- muscle boundary -->
+  <rect x="162" y="292" width="596" height="20" rx="4" fill="#fde2e4" stroke="#e11d48" stroke-width="1.2"/>
+  <text x="460" y="306" text-anchor="middle" font-size="12" font-weight="600" fill="#9f1239">muscle</text>
+
+  <!-- Epithelial layer -->
+  <rect x="162" y="320" width="596" height="86" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+  <text x="176" y="342" font-size="14" font-weight="700" fill="#854d0e">Epithelial layer</text>
+  <text x="176" y="362" font-size="12" fill="#713f12">healthy &#8644; damaged epithelial cells</text>
+  <text x="176" y="380" font-size="12" fill="#713f12">secretes TGF-&#946; (upregulated by anti-inflammatory signal)</text>
+  <text x="176" y="398" font-size="12" fill="#713f12">damaged-cell concentration scales seeding &#183; later: differentiates to fibroblasts</text>
+
+  <!-- Mobile cell layer -->
+  <rect x="162" y="414" width="596" height="130" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="176" y="436" font-size="14" font-weight="700" fill="#166534">Mobile cell layer</text>
+  <text x="176" y="456" font-size="12" fill="#14532d">macrophages (M1 / M2) &#183; fibroblasts &#183; myofibroblasts</text>
+  <text x="176" y="474" font-size="12" fill="#14532d">secretion of TGF-&#946; / ECM &#183; chemotaxis</text>
+
+  <!-- inner reaction chain -->
+  <g font-size="12.5" font-weight="600">
+    <rect x="200" y="492" width="92" height="34" rx="17" fill="#ffffff" stroke="#ef4444" stroke-width="1.5"/>
+    <text x="246" y="514" text-anchor="middle" fill="#b91c1c">fibroblast</text>
+    <line x1="292" y1="509" x2="352" y2="509" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="322" y="502" text-anchor="middle" font-size="10.5" font-weight="400" fill="#475569">TGF-&#946;</text>
+    <rect x="354" y="492" width="110" height="34" rx="17" fill="#ffffff" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="409" y="514" text-anchor="middle" fill="#b45309">myofibroblast</text>
+    <line x1="464" y1="509" x2="524" y2="509" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="526" y="492" width="96" height="34" rx="8" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="574" y="514" text-anchor="middle" fill="#0f172a">&#8593; ECM</text>
+    <text x="690" y="514" text-anchor="middle" font-size="11" font-weight="400" fill="#475569">+ MMPs regulate</text>
+    <text x="690" y="528" text-anchor="middle" font-size="11" font-weight="400" fill="#475569">ECM turnover</text>
+  </g>
+
+  <!-- Lumen layer -->
+  <rect x="162" y="552" width="596" height="66" rx="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+  <text x="176" y="574" font-size="14" font-weight="700" fill="#075985">Lumen layer</text>
+  <text x="176" y="594" font-size="12" fill="#0c4a6e">ECM is deposited here and reduces medium &#8594; fibrosis / airway thickening readout</text>
+  <text x="176" y="610" font-size="11.5" fill="#0c4a6e">stationary source of ECM &#183; mobile source of ECM (myofibroblasts)</text>
+
+  <!-- ECM deposition arrow -->
+  <line x1="574" y1="526" x2="574" y2="550" stroke="#0284c7" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Fields legend -->
+  <rect x="150" y="632" width="620" height="72" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="162" y="652" font-size="12.5" font-weight="700" fill="#334155">Diffusion fields:</text>
+  <text x="162" y="670" font-size="11.5" fill="#475569">&#8226; growth-factor field (M2, damaged epithelial, fibroblasts)    &#8226; pro-inflammatory field (M1, damaged epithelial, healthy-low)</text>
+  <text x="162" y="688" font-size="11.5" fill="#475569">&#8226; ECM field / ECM cells (myofibroblasts, damaged epithelial)    &#8226; MMP field (later)</text>
+</svg>

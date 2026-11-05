@@ -1,0 +1,424 @@
+<CompuCell3D Revision="20260214" Version="4.9.0">
+    <!-- ========================================================= -->
+    <!--                     METADATA                              -->
+    <!-- ========================================================= -->
+    <Metadata>
+        <NumberOfProcessors>1</NumberOfProcessors>
+    </Metadata>
+
+    <!-- ========================================================= -->
+    <!--                     POTTS MODEL                           -->
+    <!-- ========================================================= -->
+    <Potts>
+        <Dimensions x="200"
+                    y="100"
+                    z="1"/>
+        <Steps>20001</Steps>
+        <Temperature>10.0</Temperature>
+        <NeighborOrder>2</NeighborOrder>
+        <Boundary_x>NoFlux</Boundary_x>
+        <Boundary_y>NoFlux</Boundary_y>
+        <!-- Cold epithelium, warm mesenchyme: holds the sheet stiff without Freeze,
+             so subepithelial ECM accumulation can still push it inward (Group 1). -->
+        <FluctuationAmplitude>
+            <FluctuationAmplitudeParameters CellType="EpithelialHealthy" FluctuationAmplitude="2"/>
+            <FluctuationAmplitudeParameters CellType="EpitheliumDamaged" FluctuationAmplitude="2"/>
+            <FluctuationAmplitudeParameters CellType="Fibroblast" FluctuationAmplitude="10"/>
+            <FluctuationAmplitudeParameters CellType="Myofibroblast" FluctuationAmplitude="6"/>
+        </FluctuationAmplitude>
+    </Potts>
+
+
+    <!-- ========================================================= -->
+    <!--                    CELL TYPES                             -->
+    <!-- ========================================================= -->
+    <Plugin Name="CellType">
+        <CellType TypeName="Medium" TypeId="0"/>
+        <CellType TypeName="EpithelialHealthy"
+                  TypeId="1"/>
+        <CellType TypeName="EpitheliumDamaged"
+                  TypeId="2"/>
+        <CellType TypeName="Fibroblast"
+                  TypeId="3"/>
+        <CellType TypeName="Myofibroblast"
+                  TypeId="4"/>
+        <!-- Fixed outer boundary (A8): non-deformable, biases wall growth inward. Not
+             smooth muscle: a geometric placeholder for the ASM slot in v2. -->
+        <CellType TypeName="OuterBoundary"
+                  TypeId="5"
+                  Freeze=""/>
+        <!-- AirwayPlaceholder commented out 2026-08-09 (Priority 1, A8 decision): a frozen
+             lumen cell blocks epithelial-sheet displacement into the lumen. See
+             docs/cc3d_v1_todo.md. -->
+        <!-- <CellType TypeName="AirwayPlaceholder"
+                  TypeId="6"/> -->
+    </Plugin>
+
+
+    <!-- ========================================================= -->
+    <!--              VOLUME CONSTRAINTS                           -->
+    <!-- ========================================================= -->
+    <Plugin Name="VolumeLocalFlex"/>
+    <Plugin Name="SurfaceLocalFlex"/>
+
+    <!-- ========================================================= -->
+    <!--          SHEET INTEGRITY (no fragmentation)               -->
+    <!-- ========================================================= -->
+    <Plugin Name="ConnectivityGlobal">
+        <Penalty Type="EpithelialHealthy">1000000</Penalty>
+        <Penalty Type="EpitheliumDamaged">1000000</Penalty>
+    </Plugin>
+
+    <!-- ========================================================= -->
+    <!--               CENTER OF MASS                             -->
+    <!-- ========================================================= -->
+    <Plugin Name="CenterOfMass"/>
+
+    <!-- ========================================================= -->
+    <!--               NEIGHBOR TRACKER                           -->
+    <!-- ========================================================= -->
+    <Plugin Name="NeighborTracker"/>
+
+    <!-- ========================================================= -->
+    <!--               PIXEL TRACKER (verification)               -->
+    <!-- ========================================================= -->
+    <Plugin Name="PixelTracker"/>
+    <!-- Needed for get_cell_boundary_pixel_list (epithelial ECM secretion) -->
+    <Plugin Name="BoundaryPixelTracker">
+        <NeighborOrder>1</NeighborOrder>
+    </Plugin>
+
+    <!-- ========================================================= -->
+    <!--                 CONTACT ENERGIES                         -->
+    <!-- ========================================================= -->
+    <Plugin Name="Contact">
+        <!-- Medium -->
+        <!-- EpithelialHealthy/EpitheliumDamaged rows below scaled x0.866 (2026-09-17,
+             docs/citation_todo.md epithelial-height rescale: D_ref/D_actual = sqrt(48/64)).
+             Fibroblast/Myofibroblast-only and Medium-Medium energies are untouched, since
+             their reference cell size didn't change. -->
+        <Energy Type1="Medium" Type2="Medium">0</Energy>
+        <Energy Type1="Medium" Type2="EpithelialHealthy">17.32</Energy>
+        <Energy Type1="Medium" Type2="EpitheliumDamaged">17.32</Energy>
+        <Energy Type1="Medium" Type2="Fibroblast">18</Energy>
+        <Energy Type1="Medium" Type2="Myofibroblast">20</Energy>
+
+        <!-- Epithelium -->
+        <Energy Type1="EpithelialHealthy"
+                Type2="EpithelialHealthy">1.73</Energy>
+        <Energy Type1="EpitheliumDamaged"
+                Type2="EpitheliumDamaged">1.73</Energy>
+        <Energy Type1="EpithelialHealthy"
+                Type2="EpitheliumDamaged">1.73</Energy>
+
+        <!-- Fibroblasts -->
+        <Energy Type1="Fibroblast"
+                Type2="Fibroblast">20</Energy>
+        <Energy Type1="Myofibroblast"
+                Type2="Myofibroblast">20</Energy>
+        <Energy Type1="Fibroblast"
+                Type2="Myofibroblast">20</Energy>
+
+        <!-- Epithelium vs connective tissue. Raised +5 each (2026-08-13, alongside
+             epithelial FocalPointPlasticity links below): the flickering sheet-breach
+             found in the 2026-08-11/12 K_C=20 displacement run (mesenchymal cells
+             wedging into the shared boundary between neighboring epithelial cells,
+             field C leaking into the lumen while open) needs both a stronger
+             adhesion barrier against intrusion and explicit cell-cell cohesion to
+             resist neighbor separation. First-pass increment, not calibrated against
+             a specific stability target; re-verify against the next full run
+             whether the gap recurs. -->
+        <Energy Type1="EpithelialHealthy"
+                Type2="Fibroblast">34.64</Energy>
+
+        <Energy Type1="EpithelialHealthy"
+                Type2="Myofibroblast">38.97</Energy>
+
+        <Energy Type1="EpitheliumDamaged"
+                Type2="Fibroblast">34.64</Energy>
+
+        <Energy Type1="EpitheliumDamaged"
+                Type2="Myofibroblast">38.97</Energy>
+
+        <!-- OuterBoundary: frozen wall, mirrors the Medium row. It cannot be invaded
+             (Freeze rejects copies into it regardless of J), so these values only govern
+             whether subepithelial cells stick to or repel from the wall; treating it like
+             empty space for adhesion purposes keeps it from distorting the subepithelial
+             packing it borders. -->
+        <Energy Type1="OuterBoundary" Type2="Medium">0</Energy>
+        <Energy Type1="OuterBoundary" Type2="EpithelialHealthy">17.32</Energy>
+        <Energy Type1="OuterBoundary" Type2="EpitheliumDamaged">17.32</Energy>
+        <Energy Type1="OuterBoundary" Type2="Fibroblast">18</Energy>
+        <Energy Type1="OuterBoundary" Type2="Myofibroblast">20</Energy>
+        <Energy Type1="OuterBoundary" Type2="OuterBoundary">0</Energy>
+        
+        <!-- AirwayPlaceholder contact energies commented out with the cell type above -->
+        <!--
+        <Energy Type1="AirwayPlaceholder" Type2="AirwayPlaceholder">5</Energy>
+        <Energy Type1="AirwayPlaceholder" Type2="Medium">0</Energy>
+        <Energy Type1="AirwayPlaceholder" Type2="EpithelialHealthy">18</Energy>
+        <Energy Type1="AirwayPlaceholder" Type2="EpitheliumDamaged">18</Energy>
+        <Energy Type1="AirwayPlaceholder" Type2="Fibroblast">40</Energy>
+        <Energy Type1="AirwayPlaceholder" Type2="Myofibroblast">40</Energy>
+        <Energy Type1="AirwayPlaceholder" Type2="OuterBoundary">40</Energy>
+        -->
+        <NeighborOrder>2</NeighborOrder>
+    </Plugin>
+
+    <!-- ========================================================= -->
+    <!--                     CHEMOTAXIS                           -->
+    <!-- ========================================================= -->
+    
+    <Plugin Name="Chemotaxis">
+        <ChemicalField Name="G"
+                       Source="DiffusionSolverFE">
+            <!-- ChemotactTowards restriction on Fibroblast (previously "Medium,Fibroblast,
+                 Myofibroblast", added to keep chemotaxis from driving copies straight into the
+                 epithelium) removed 2026-08-11, deliberate: fibroblasts climbing the raw G
+                 gradient right up to the epithelial boundary is the more realistic behavior for
+                 a mobile GF source (A14/model_spec_v1_v2) and for testing the mobile-vs-
+                 stationary-source hypothesis this model is built around: a source that can't
+                 approach its target isn't a meaningful test of mobility. Contact energies
+                 (EpithelialHealthy/Damaged vs Fibroblast, 35) and ConnectivityGlobal still do
+                 the actual containment work; confirmed visually in the Player (2026-08-11) that
+                 fibroblasts approach and press against the sheet without breaking through it.
+                 Lambda also raised 250 -> 1000 in the same pass, for visibly more mobility;
+                 fibroblasts appeared largely stationary at 250. -->
+            <ChemotaxisByType Type="Fibroblast"
+                              Lambda="1000"
+                              SaturationCoef="1.0"/>
+            <!-- Myofibroblast Lambda set to 0, not left at the inherited 120: model_spec_v1_v2.md
+                 assigns the chemotaxis coefficient to fibroblasts only ("mobile source") and gives
+                 myofibroblasts "reduced motility"; myofibroblasts are the ECM producers, not the
+                 GF-seeking population. Recorded in lab-notebook 2026-08-07. ChemotactTowards
+                 narrowed to "Medium" alongside the Fibroblast change above, though Lambda=0
+                 makes it a no-op either way. -->
+            <ChemotaxisByType Type="Myofibroblast"
+                              Lambda="0"
+                              ChemotactTowards="Medium"
+                              SaturationCoef="1.0"/>
+        </ChemicalField>
+    </Plugin>
+
+    <!-- ========================================================= -->
+    <!--         EPITHELIAL CELL-CELL COHESION (FPP)              -->
+    <!-- ========================================================= -->
+    <!-- Added 2026-08-13: passive structural cohesion between neighboring epithelial
+         cells, not an active pulling force; Contact energy alone (J=2 between
+         epithelial cells) turned out to be too soft a barrier once the 2026-08-11/12
+         K_C=20 displacement run put real mechanical pressure on the sheet: mesenchymal
+         cells intermittently wedged into the shared boundary between two epithelial
+         neighbors (a flickering gap, ~MCS 13000 onward), which Contact energy and
+         ConnectivityGlobal don't prevent; ConnectivityGlobal only stops a single
+         cell's own pixels fragmenting, not two different neighboring cells losing
+         contact with each other. FPP links add an explicit spring between neighbor
+         centroids (real desmosome/tight-junction analog per Module 5.1), which
+         resists neighbor separation specifically while staying close to neutral if
+         the whole sheet translates together; unlike lowering FluctuationAmplitude
+         further, which would resist the wanted collective displacement too.
+         <Local/> + all-zero XML Parameters: no automatic link formation: every link
+         is created explicitly in TissueInitializationSteppable.link_epithelial_neighbors,
+         once at MCS 0, between each epithelial cell and its epithelial neighbors only. -->
+    <Plugin Name="FocalPointPlasticity">
+        <Local/>
+
+        <Parameters Type1="EpithelialHealthy" Type2="EpithelialHealthy">
+            <Lambda>0</Lambda>
+            <TargetDistance>0</TargetDistance>
+            <MaxDistance>0</MaxDistance>
+            <MaxNumberOfJunctions>0</MaxNumberOfJunctions>
+        </Parameters>
+
+        <Parameters Type1="EpithelialHealthy" Type2="EpitheliumDamaged">
+            <Lambda>0</Lambda>
+            <TargetDistance>0</TargetDistance>
+            <MaxDistance>0</MaxDistance>
+            <MaxNumberOfJunctions>0</MaxNumberOfJunctions>
+        </Parameters>
+
+        <Parameters Type1="EpitheliumDamaged" Type2="EpitheliumDamaged">
+            <Lambda>0</Lambda>
+            <TargetDistance>0</TargetDistance>
+            <MaxDistance>0</MaxDistance>
+            <MaxNumberOfJunctions>0</MaxNumberOfJunctions>
+        </Parameters>
+    </Plugin>
+
+    <!-- ========================================================= -->
+    <!--              DIFFUSION SOLVER FE                         -->
+    <!-- ========================================================= -->
+    <Steppable Type="DiffusionSolverFE">
+        <!-- ============================================ -->
+        <!--              GROWTH FACTOR G                  -->
+        <!-- ============================================ -->
+        <DiffusionField>
+            <DiffusionData>
+                <FieldName>G</FieldName>
+                <GlobalDiffusionConstant>0.10</GlobalDiffusionConstant> <!-- Reducir ligeramente de 0.25 a 0.10 para confinar el gradiente -->
+                <GlobalDecayConstant>0.01</GlobalDecayConstant>    <!-- Aumentar el decaimiento para que la senal no sature todo el dominio -->
+                <!-- <DiffusionCoefficient CellType="AirwayPlaceholder">0.0</DiffusionCoefficient> -->
+                <!-- <DecayCoefficient CellType="AirwayPlaceholder">0.1</DecayCoefficient> -->
+                </DiffusionData>
+
+            <SecretionData>
+                <!-- Stationary source (A14): damaged epithelium, sets where fibrosis initiates.
+                     Raised 0.01 -> 0.1 (2026-08-11, deliberate experiment, alongside the
+                     Myofibroblast raise below and FIBROBLAST_INITIAL_NUMBER=80): testing whether
+                     a stronger G signal drives faster fibroblast->myofibroblast conversion and
+                     ECM deposition, as a lever on PRIORITY 0's displacement plan
+                     (cc3d_v1_todo.md) alongside/ahead of the C-to-targetVolume coupling fix. -->
+                <Secretion Type="EpitheliumDamaged">
+                    0.1
+                </Secretion>
+                <!-- A19 (model_assumptions_for_slides.md, added 2026-08-09): healthy epithelium
+                     must have a non-zero secretion floor, not just a lower label, otherwise the
+                     damaged:healthy contrast that sets where the lesion initiates doesn't exist as
+                     a rate difference at all. No paper supplies a calibrated damaged:healthy ratio
+                     for small-airway epithelium (A19 treats it as a scanned parameter); 1/10 the
+                     damaged rate is a first-pass placeholder, same uncalibrated-ratio convention
+                     used for Myofibroblast below. -->
+                <Secretion Type="EpithelialHealthy">
+                    0.01
+                </Secretion>
+                <!-- Mobile source (A14/model_spec_v1_v2): fibroblasts secrete GF as they
+                     migrate. First-pass rate, not calibrated: half of the epithelial rate, so
+                     mobile source is present but doesn't dominate stationary one. -->
+                <Secretion Type="Fibroblast">
+                    0.005
+                </Secretion>
+                <!-- Myofibroblast GF secretion. Originally kept low (lab-notebook 2026-08-07
+                     decision, 0.001, ~1/10 the epithelial rate): the autocrine TGF-beta loop is
+                     biologically gated by matrix stiffness (Wipff et al., 2007) and v1 has no
+                     stiffness feedback, so a high rate risked running away. Raised 0.001 -> 0.1
+                     (2026-08-11, deliberate experiment, 100x): testing whether a stronger
+                     autocrine signal, alongside the EpitheliumDamaged raise above and
+                     FIBROBLAST_INITIAL_NUMBER=80, drives enough additional myofibroblast
+                     conversion and ECM deposition to produce measurable epithelial displacement
+                     (PRIORITY 0's displacement plan, cc3d_v1_todo.md). Confirmed runaway growth
+                     is a real risk this was originally guarding against: field G reached mean
+                     ~1.6-1.7 / max ~9.7 by MCS 20000 in the 2026-08-11 full-run test with this
+                     value, well past the ~0.02 baseline the S_M2_COEFFICIENT calibration note
+                     assumes; revisit if that turns out to destabilize other gated behavior. -->
+                <Secretion Type="Myofibroblast">
+                    0.1
+                </Secretion>
+            </SecretionData>
+
+            <!-- NoFlux is not a valid BoundaryConditions element for DiffusionSolverFE -->
+            <BoundaryConditions>
+                <Plane Axis="X">
+                    <ConstantDerivative PlanePosition="Min" Value="0.0"/>
+                    <ConstantDerivative PlanePosition="Max" Value="0.0"/>
+                </Plane>
+                <Plane Axis="Y">
+                    <ConstantDerivative PlanePosition="Min" Value="0.0"/>
+                    <ConstantDerivative PlanePosition="Max" Value="0.0"/>
+                </Plane>
+            </BoundaryConditions>
+        </DiffusionField>
+
+        <!-- ============================================ -->
+        <!--                ECM / COLLAGEN                -->
+        <!-- ============================================ -->
+        <DiffusionField>
+            <DiffusionData>
+                <FieldName>C</FieldName>
+                <GlobalDiffusionConstant>0.0</GlobalDiffusionConstant>
+                <GlobalDecayConstant>0.0005</GlobalDecayConstant>
+                <!-- <DiffusionCoefficient CellType="AirwayPlaceholder">0.0</DiffusionCoefficient> -->
+                <!-- <DecayCoefficient CellType="AirwayPlaceholder">0.1</DecayCoefficient> -->
+            </DiffusionData>
+
+            <SecretionData>
+                <SecretionOnContact Type="Myofibroblast" SecreteOnContactWith="Medium">0.08</SecretionOnContact>
+            </SecretionData>
+
+            <!-- See note above: Neumann zero-derivative, not the hallucinated <NoFlux/>. -->
+            <BoundaryConditions>
+                <Plane Axis="X">
+                    <ConstantDerivative PlanePosition="Min" Value="0.0"/>
+                    <ConstantDerivative PlanePosition="Max" Value="0.0"/>
+                </Plane>
+                <Plane Axis="Y">
+                    <ConstantDerivative PlanePosition="Min" Value="0.0"/>
+                    <ConstantDerivative PlanePosition="Max" Value="0.0"/>
+                </Plane>
+            </BoundaryConditions>
+        </DiffusionField>
+
+        <!-- ============================================ -->
+        <!--     PRO-INFLAMMATORY FIELD P (Gate B')       -->
+        <!-- ============================================ -->
+        <!-- Added 2026-10-31 (Gate B' Phase 1, docs/gate_Bprime_plan_2026-10-30.md sec 3).
+             The field is DECLARED here even when parameters.py's P_FIELD_ENABLED is False:
+             a field with no sources stays identically zero and changes nothing in the Potts
+             dynamics, which criterion 1 (exact regression against the B4 replicates) checks.
+             No <SecretionData> on purpose: both sources are written from Python each MCS
+             (epithelium gated by the live ODE WS, FibrosisModelSteppable.secrete_epithelial_P;
+             the uniform S_M1 macrophage pedestal from live M1/A, ODESignalSteppable.step),
+             neither of which the XML can express.
+             Constants mirror parameters.py (P_DIFFUSION_XML / P_DECAY_XML).
+             D = 1.11 px^2/MCS = lambda^2 k with lambda = 50 um = 40 px, the centre of the
+             IL-6/IL-8-class literature range 25-120 um (decided 2026-11-02; pinned
+             independently of G, scan points 0.28 / 1.11 / 4.44 / 6.39 for Gate D).
+             Decay = the ODE's m7 = 0.04 /h on the tissue clock, 6.93e-4 /MCS.
+             ODESignalSteppable.start() warns if these literals drift from parameters.py.
+             CC3D 4.9.0's DiffusionSolverFE sub-steps automatically above its stability limit
+             (D = 4.44 ran 20 calls/MCS at D/20, verified 2026-10-31; D = 1.11 needs ~5), and
+             <ExtraTimesPerMCS> is ignored, so scan values need no further XML change. -->
+        <DiffusionField>
+            <DiffusionData>
+                <FieldName>P</FieldName>
+                <GlobalDiffusionConstant>1.11</GlobalDiffusionConstant>
+                <GlobalDecayConstant>0.000693</GlobalDecayConstant>
+            </DiffusionData>
+
+            <BoundaryConditions>
+                <Plane Axis="X">
+                    <ConstantDerivative PlanePosition="Min" Value="0.0"/>
+                    <ConstantDerivative PlanePosition="Max" Value="0.0"/>
+                </Plane>
+                <Plane Axis="Y">
+                    <ConstantDerivative PlanePosition="Min" Value="0.0"/>
+                    <ConstantDerivative PlanePosition="Max" Value="0.0"/>
+                </Plane>
+            </BoundaryConditions>
+        </DiffusionField>
+
+        <!-- ============================================ -->
+        <!--          MMP FIELD (Gate B' Phase 3)         -->
+        <!-- ============================================ -->
+        <!-- Added 2026-11-02 (Gate B' Phase 3, docs/gate_Bprime_plan_2026-10-30.md sec 3).
+             Declared whether or not parameters.py's MMP_FIELD_ENABLED is True, like P: with
+             no sources it stays identically zero and changes nothing (criterion 1).
+             No <SecretionData> on purpose: the epithelial source MMP_0 (1 + K_MMP P_local)
+             depends on the live P field at each cell, and the TIMP sink is a per-myofibroblast
+             COM subtraction clamped at 0; both are written from Python each MCS
+             (FibrosisModelSteppable.secrete_epithelial_MMP / apply_timp_subtraction).
+             Constants mirror parameters.py (MMP_DIFFUSION_XML / MMP_DECAY_XML).
+             D = 0.64 px^2/MCS = lambda^2 k with lambda = 10 um = 8 px, the pericellular range
+             of a collagen-bound gelatinase (Collier2011; calibration table B' pins), and
+             decay 0.01 /MCS (t1/2 72 min, kept at G's; TIMP is explicit, not folded in).
+             ODESignalSteppable.start() warns if these literals drift from parameters.py.
+             D = 0.64 runs ~3 automatic solver sub-steps per MCS. -->
+        <DiffusionField>
+            <DiffusionData>
+                <FieldName>MMP</FieldName>
+                <GlobalDiffusionConstant>0.64</GlobalDiffusionConstant>
+                <GlobalDecayConstant>0.01</GlobalDecayConstant>
+            </DiffusionData>
+
+            <BoundaryConditions>
+                <Plane Axis="X">
+                    <ConstantDerivative PlanePosition="Min" Value="0.0"/>
+                    <ConstantDerivative PlanePosition="Max" Value="0.0"/>
+                </Plane>
+                <Plane Axis="Y">
+                    <ConstantDerivative PlanePosition="Min" Value="0.0"/>
+                    <ConstantDerivative PlanePosition="Max" Value="0.0"/>
+                </Plane>
+            </BoundaryConditions>
+        </DiffusionField>
+    </Steppable>
+
+</CompuCell3D>

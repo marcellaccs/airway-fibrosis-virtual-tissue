@@ -1,0 +1,121 @@
+# Calibration table, started 2026-10-29
+
+One row per tissue-layer parameter that has, or could have, a measurable counterpart. "Pinned by" is the quantity that would set it; "Source / assay" is a citation already in `references.bib`, a citation to add, or a planned Jones lab assay (see `jones_lab_assay_ask_2026-10-29.md`). Status: **cited** (value traced to a source), **anchored** (value chosen from a source, conversion stated), **free** (chosen by hand, no source), **planned** (assay scheduled). ODE parameters are not here; they are the JTB paper's and are quoted from it.
+
+Model values are from `parameters.py` and the XML at commit `434bc94` unless marked (new) for the 10-29 additions.
+
+## Scale
+
+| Parameter | Value | Pinned by | Source / assay | Status |
+|---|---|---|---|---|
+| `UM_PER_PX` | 1.25 µm | epithelial cell width 10 µm / 8 px | Devalia 1990, Mariassy 1984, Plopper 2020 | anchored (spread 0.85–1.25 stated) |
+| `S_PER_MCS` | 62.4 s | fibroblast speed 10.7 µm/h over 0.1484 px/MCS measured | Tisler 2020 (IPF/IPF); Bennet 2026 15-day window corroborates | anchored |
+| `FIBROBLAST_CYCLE_MCS` | 1730 (30 h) | fibroblast doubling time | cite needed (lung fibroblast doubling 24–36 h) | free, cite |
+| `FIBROBLAST_INITIAL_NUMBER` | 11 | epithelial : fibroblast ratio 2.2 : 1 | Zajicek 1992 | anchored |
+
+## Field G (lumped TGF-β-like growth factor)
+
+| Parameter | Value | Pinned by | Source / assay | Status |
+|---|---|---|---|---|
+| G diffusion | 0.10 px²/MCS (λ_G = 3.2 px = 4 µm, under one cell width) | TGF-β1 signalling range in tissue: ≤ 70 µm (`VanMeerbeeck2025`, verify; `Jones1996`), down to contact-only when signalling needs no release from the latent complex (`Campbell2020`, `Jin2024`); the usable D is the binding-dressed value, not free D (`Dinbergs1996`, `McCaffrey1994`, `Thorne2008`) | 2026-11-01 literature pass, rows in the pins table below and `lab-notebook/2026/2026-11-01_lit_diffusion_ranges.md` | **anchored as a range**: current value is the contact-only lower arm; scan λ_G = 10, 20, 40, 70 µm (D = 0.64, 2.56, 10.2, 31.4) in Gate D |
+| G decay | 0.01 /MCS (t½ ≈ 70 MCS ≈ 72 min) | active TGF-β1 half-life: 1.6–3 min in plasma (`Philip1991`, `Wakefield1990`), ×3 under heparin (`McCaffrey1994`); latent > 100 min (`Wakefield1990`); lung is a sink (`LaMarre1991`); no tissue value | 2026-11-01 literature pass | **bounded** 0.0072–0.45 /MCS; 0.01 is the latent end and holds only if `G` is read as the lumped active + latent pool (decision for Marcella, say so in A2/A13) |
+| `FIB_TO_MYOF_G_THRESHOLD` | 0.45 | EC50 of TGF-β1 for α-SMA induction in lung fibroblasts | **Jones assay 2** (α-SMA lysate ELISA, TGF-β1 dose series); literature EC50 sub-ng/mL to low ng/mL | planned |
+| activation rate | 0.02 per MCS of signal (hard-coded) | time from TGF-β1 exposure to α-SMA+ (1–3 days) | **Jones assay 2** (time series). Known wrong: converts in < 1 h at saturating G. Literature 24–72 h → 7.2e-4 to 2.4e-4 /MCS, B′ pins below | anchored (literature), assay later |
+| `FIBROBLAST_MITOSIS_G_THRESHOLD` | 0.225 | TGF-β1 / IL-6 dose at which proliferation rises | **Jones assay 4** (MTT/CCK-8 vs dose) | planned |
+| secretion, damaged epithelium | 0.1 | TGF-β1 per cell per h, smoke-exposed epithelium | **Jones assay 1** (TGF-β1 ELISA, conditioned medium) | planned |
+| secretion, healthy epithelium | 0.01 | same, unexposed or intact | **Jones assay 1** | planned |
+| damaged : healthy G ratio (A19b) | 10 : 1 | ratio of the two above | **Jones assay 1**; literature proxies Kumar 2004, López-Guisa 2012, Checa 2016 | free, planned |
+| secretion, fibroblast | 0.005 | autocrine TGF-β1 per fibroblast | **Jones assay 2** (TGF-β1 ELISA on fibroblast medium) | free, planned |
+| secretion, myofibroblast | 0.1 now; **→ 0.001 at the start of Phase 5** (pre-registered 2026-11-02, plan §6 item 7; 0.1 becomes a Gate D sensitivity arm) | autocrine TGF-β1 per myofibroblast; stiffness-gated loop (Wipff 2007) with no stiffness feedback in v1 | **Jones assay 2**, TGF-β1-pretreated wells. 0.1 was set 2026-08-11 as a displacement experiment and saturates every `G` gate (band `G` 1.5–1.7 vs 0.225 / 0.45) | free, flagged; change scheduled |
+| `S_M2_COEFFICIENT` | 0.003 (pedestal ≈ 0.13 of threshold at attractor) | uniform TGF-β1 supply; chip condition 50 ng/mL is saturating | Bennet 2026 (matched condition); no direct pin | free |
+| chemotaxis λ (fibroblast) | 1000 | directed-migration index toward TGF-β1 | needs imaging (transwell); out of Jones scope; literature | free, cite |
+| `R_FIB` | 0.001 /MCS | recruitment rate | no direct pin; ablation target per §3.4 | free, stated |
+
+## Field C and ECM cells
+
+| Parameter | Value | Pinned by | Source / assay | Status |
+|---|---|---|---|---|
+| C decay | 0.0005 /MCS (XML) **+ `K_C_MMP` · MMP_local per band pixel per MCS, `K_C_MMP` = 0.001, set 2026-11-02 (Phase 3; `C_MMP_DECAY_ENABLED`, on by default when the MMP switch is on; `C_MMP_DECAY_PERIOD_MCS` = 10 with the per-call rate × 10, since the per-MCS loop cost 57 s per 3k MCS)**. At the sheet-level MMP ≈ 6–11 the MMP arm is 12–22× the base decay; at the band mean ≈ 0.7 it is ≈ 1.4×; deep in the band (MMP ≈ 0) nothing. In the seed-200 3k twin it removed 69 % of band `C` (0.626 → 0.192) because `C` is deposited exactly where MMP peaks | collagen turnover in absence of MMP induction; under MMP induction, the MMP arm | literature (slow, weeks); plan §5 "weak" pin for `k_C,mmp` | base: free, cite; MMP arm: placeholder set, free (scan {0, 0.0005, 0.001, 0.002} in Gate D if the ECM-cell removal makes it redundant) |
+| myofibroblast C secretion | 0.08 on contact | collagen I output per myofibroblast | **Jones assay 2** (PICP ELISA) gives relative output fibroblast vs myofibroblast; the model needs only the ratio | planned |
+| epithelial C secretion | 0.01 | basal matrix output | free; small | free |
+| `K_C` | 20 | C at half-max stiffening | no pin; stated | free |
+| ECM cell size (new) | 7 × 7 µm (Chandrasegaran) | collagen bundle / fibre scale | Chandrasegaran 2025 | anchored (borrowed) |
+| ECM quantum and budget (new) | `ECM_QUANTUM` = 36 px (one ECM cell); `ECM_BUDGET_INCREMENT` = 0.01 px/MCS per myofibroblast in Medium contact, i.e. one ECM cell per 3,600 MCS ≈ 2.6 days of contact (first pass, decided 2026-11-05, plan §6 item 10; was 0.08). Enters `parameters.py` in Phase 4 | PICP per myofibroblast per day | **Jones assay 2** for the ratio; absolute stays free. Sized against the band: nominally 45–72 % of the ≈ 11,600 px free band over 20k at Gate B4's myofibroblast counts (0.08 gave 3.6–5.8×); candidate Gate D sensitivity axis | free, stated |
+| field `C` under ECM cells (new) | not written and not read when `ECM_CELLS_ENABLED` (decided 2026-11-05, plan §6 item 9): the rows above (C decay and its MMP arm, myofibroblast and epithelial C secretion, `K_C`) apply only with ECM cells off | none; design: matrix is the ECM cells, so a collagen field beside them would be a second copy | design decision. Proposed with it, to confirm: no replacement for the `c_norm` stiffening of λ_volume, and no epithelial matrix output under the switch | design, stated |
+| myofibroblast `targetVolume` growth with `c_norm` under ECM cells (new) | `MYOF_TARGET_VOLUME_GROWTH_FACTOR_WITH_ECM` = 0 (decided 2026-11-04, plan §6 item 3); 2.0 with ECM cells off (base model, unchanged). Enters `parameters.py` in Phase 4 | none; design: matrix volume is carried by ECM cells, not by swollen myofibroblasts (the swelling removed is ≈ 400–560 px at 20k in Gate B4) | design decision; Gate D control arm (ECM off, factor 0) separates the matrix effect from the lost swelling | design, stated |
+| ECM seeding and growth (new) | seed ≤ 2 × 2 px on free Medium only; `targetVolume` ramps at `ECM_GROWTH_PX_PER_MCS` = 0.5 px/MCS to 36 px (≈ 65 MCS ≈ 1.1 h). Decided 2026-11-04 (plan §6 item 1); enters `parameters.py` in Phase 4 | none; mechanical. Keeps the per-pixel volume drive at the scale of the contact energies (10–30) where a full target at birth would give 690 against an epithelial 22.5 | design decision; checked by the Phase 4 scratch comparison (ramped vs unramped at the sheet) | free, stated |
+| ECM contact energies (new) | ECM–ECM −2, Medium–ECM −1, ECM–cell +1 | cohesion | Chandrasegaran 2025 | anchored (borrowed) |
+
+## Field P (new)
+
+| Parameter | Value | Pinned by | Source / assay | Status |
+|---|---|---|---|---|
+| epithelial P secretion, healthy exposed | `P_H` = 3.44 per cell per MCS of `WS` (set 2026-10-31: derived so the `P` band mean at the ODE attractor ≈ 1, uniform-field approximation; the 3k smoke run projects to ~0.97) | IL-6 (and IL-8) per cell per h under smoke extract | **Jones assay 1** (IL-6, IL-8 ELISA) sets the real scale | placeholder set (dimensionless scale), planned |
+| damaged : healthy P ratio (A19a) | 2 : 1 fixed | ODE `e6/e5` | JTB paper; **Jones assay 1** checks it | cited |
+| P diffusion, decay | decay 6.93e-4 /MCS (ODE `m7` = 0.04 /h on the tissue clock, t½ ≈ 1000 MCS ≈ 17 h), set 2026-10-31. **D = 1.11 px²/MCS from λ_P = 50 µm = 40 px (set 2026-11-02, Marcella)**: the centre of `P`'s own literature range, pinned independently of `G` (a shared-D rule was considered 11-01 and dropped). History: 100 µm / D 4.44 (10-31 build), 15 µm / D 0.10 = `G`'s (11-01), both now scan points | IL-6 class: decay (`m7` fallback; Castell 1988 as sensitivity); diffusion length 25–120 µm, 250 µm ceiling (11-01 literature pass, `lab-notebook/2026/2026-11-01_lit_diffusion_ranges.md`) | literature pins below; **Jones assay 1** time course gives decay in medium | decay **anchored**, set; D **anchored as a range, build value at its centre**; Gate D scan λ_P = 25, 50, 100, 120 µm (D = 0.28, 1.11, 4.44, 6.39) |
+| `S_M1` coefficient `k_M1` (new) | `P_H · (m6/e5) · Hm3^nm3/(A^nm3 + Hm3^nm3) · WS · (M1+M1R) · n_epi/N_band` per subepithelial-band pixel per MCS, `m6/e5` and Hill constants read live (implemented 2026-10-31; the `WS` gate and the per-cell → per-pixel spread were implicit in the 10-30 formula) | the ODE's own macrophage term in `P'` relative to its epithelial term, same pattern as `e6/e5` | JTB paper (`m6` = 0.2, `Hm3` = 0.9, `nm3` = 2) | cited (inherited; 2026-10-30/31) |
+| `k_P` repair gating (new) | `K_P` = 1.0 in `parameters.py` (set 2026-11-02, Phase 2 placeholder: `p_repair / (1 + K_P · P_local)`); expressed against sheet-level `P` (≈ 1.7 at λ = 50 µm, so ≈ 2.7× slower repair) | epithelial repair rate vs IL-6 | literature: sign contested (IL-6 alone speeds airway repair; smoke slows it), B′ pins below; scan {0, 0.5, 1, 2} | free, sign contested; placeholder set (2026-11-02) |
+| `k_prolif` (new) | `K_PROLIF` = 0.5 × `FIBROBLAST_MITOSIS_G_THRESHOLD` = 0.1125 in `parameters.py` (set 2026-11-02, Phase 2 placeholder: gate on `G_local + K_PROLIF · P_local`; `P` = 1 alone meets half the gate, band-level `P` ≈ 0.8 gives ≈ 40 %) | fibroblast proliferation vs IL-6 | **Jones assay 4** (MTT/CCK-8 vs IL-6); literature ≤ 2× and sign depends on fibroblast phenotype, B′ pins below; scan including 0 | planned, sign contested; placeholder set (2026-11-02) |
+
+## Field MMP (new)
+
+| Parameter | Value | Pinned by | Source / assay | Status |
+|---|---|---|---|---|
+| epithelial MMP secretion, `mmp_0`, `k_mmp` | **`MMP_0` = 3.08 per epithelial cell per MCS × (1 + `K_MMP` · P_local), `K_MMP` = 1.0 (set 2026-11-02, Phase 3)**. `MMP_0` derived like `P_H`: uniform-field approximation, band mean 1 at the attractor, `MMP_0 = k · N_domain / (n_epi · (1 + K_MMP · P_ref))` with `P_ref` = 1.6 = the sheet-level `P` the Phase 2 consumers are normalized against (`P_LOCAL_EPITHELIAL_REFERENCE`). Every MCS, healthy and damaged alike (the exposure enters through `P_local`, not `WS`; no 2:1). **Normalization statement:** with λ_MMP = 8 px the field is peaked under the sheet, so the uniform-field target is crude: measured at 3k MCS, seed 200, band mean **0.68**, domain mean 0.87, sheet-level value at the source pixels **6.2–6.3**, domain max ≈ 11, lumen mean 0.74. `MMP` = 1 means "the band mean at the attractor"; Phase 4's `MMP_thr` is expressed against the **band mean**, and because the field falls off as e^(−d/8 px) from the sheet, a threshold at the band mean is crossed only within ≈ 8 · ln(6.3/0.68) ≈ 18 px of the sheet. *(Superseded 2026-11-04: ECM removal is rate-based, see the `K_ECM_MMP` row; no threshold rests on the band mean.)* `K_MMP` = 1 is the plan's placeholder (≈ 2.6× baseline at sheet-level `P`) | MMP-2/MMP-9 per epithelial cell, baseline and under IL-6 / smoke extract; `K_MMP` by the fold-change | **Jones assay 3** (MMP-2, MMP-9 ELISA); Zou 2014 qualitative | placeholder set (dimensionless scale), planned |
+| MMP diffusion, decay | **λ_MMP = 10 µm = 8 px, D = 0.64 px²/MCS = λ²k; decay 0.01 /MCS (t½ 72 min), set 2026-11-02** (`MMP_DIFFUSION_LENGTH_UM`, `MMP_DECAY_PER_MCS`; XML literals cross-checked at `start()`). Pericellular range of a collagen-bound gelatinase (pins table below); decay kept at `G`'s with TIMP explicit, not folded in | MMP-9 D in tissue (bound), MMP half-life in matrix | `Collier2011`, `Pluen2001`; `Bonadio2023`, `Vempati2007`, `RamosDeSimone1999` (pins table) | λ: free, stated (direction from `Collier2011`); decay: free (no tissue half-life found). Gate D axis if Phase 4 removal is sensitive to λ |
+| TIMP reduction by myofibroblasts | **`TIMP_RATE` = 0.1 · `MMP_0` = 0.31 per myofibroblast per MCS at its COM pixel, clamped at 0 (set 2026-11-02)**. Measured: the clamp bites about half the time (2335 units removed over 3k MCS against ≈ 5100 nominal), because 8 of the 13 myofibroblasts sit deep in the band at MMP = 0; at the 5 near the sheet the COM pixel reads `TIMP_RATE` (0.32) below its four neighbours (2.2–3.6), measured right after the subtraction | TIMP-1 per myofibroblast; TIMP-1 : MMP-9 ratio | **Jones assay 3** (TIMP-1 ELISA on fibroblast wells); Zou 2014 raised both | placeholder set (ratio), planned |
+| ECM removal by MMP, `K_ECM_MMP` (replaces `MMP_thr`, decided 2026-11-04, plan §6 item 8) | **rate-based: each ECM cell removed with probability `K_ECM_MMP` · MMP_local per MCS; placeholder `K_ECM_MMP` = 1e-4** (mean lifetime ≈ 3,300 MCS ≈ 2.4 days at MMP = 3; ≈ 7 ECM cells per sheet-adjacent myofibroblast at one cell per 450 MCS). Enters `parameters.py` in Phase 4. No threshold: at the band mean it would delete every ECM cell within ≈ 17 px of the sheet at birth and none deeper | collagen (ECM) turnover under MMP induction; lifetime of deposited matrix | none yet (free); same first-order form as the `C` MMP-decay term; the threshold was Chandrasegaran 2025's rule | free, stated; Gate D scan {0, 3e-5, 1e-4, 3e-4, 1e-3} |
+| epithelium-localized MMP source | qualitative | MMP-9, MMP-2, TIMP-1 raised and epithelial under wood smoke | Zou 2014 | cited |
+
+## Repair (Gate B1)
+
+| Parameter | Value | Pinned by | Source / assay | Status |
+|---|---|---|---|---|
+| `e4` | 0.002 /h (read live) | ODE | JTB paper | cited |
+| `e8`, `e9` | 1.0, 1.0 | ODE | JTB paper (check published version) | cited |
+| clock for conversion | tissue (0.01733 h/MCS) | A11 | design decision, stated | stated |
+
+## B′ build placeholders and what blocks the rebaseline (added 2026-10-30)
+
+`docs/gate_Bprime_plan_2026-10-30.md` §5 lists, for every row marked "to set" above, the placeholder the
+build will run with and whether the rebaseline should wait for a pinned value. Summary: the rows that
+**block** the B′ rebaseline are `P` diffusion and decay, `k_P`, `k_prolif`, MMP diffusion and decay,
+and the activation-rate fix (1–3 days to α-SMA⁺, i.e. ≈ 2.3e-4 to 6.9e-4 per MCS of saturating
+signal, against the current 0.02). Those are literature items and can be pinned in a separate
+session before Phase 5 of the plan. `p_h`, `mmp_0`, `timp_rate`, `MMP_thr`, the ECM quantum and
+the ECM contact energies run on stated placeholders (the fields are dimensionless, so `p_h` and
+`mmp_0` only set a scale) and are scanned or assay-updated later. When a value is pinned, change
+its status here, add it to the `parameters.py` Biological section with the cite key, and note it in
+that day's lab-notebook entry.
+
+## B′ literature pins (added 2026-10-30, evening)
+
+Consensus search, peer-reviewed only. Supporting and challenging sources, with Consensus links, are in
+`evidence_dossier_assumptions.md` § Gate B′ parameter pins ([55]–[77]). Conversions: 1 px = 1.25 µm,
+1 MCS = 62.4 s, so **D [px²/MCS] = 39.94 × D [µm²/s]** and **k [/MCS] = 62.4 × k [/s]**. Abstract-level
+numbers are marked *(verify)*. None of these sources is wood-smoke specific.
+
+| Parameter | Real-unit value (source) | Lattice value | Recommended B′ setting | Status |
+|---|---|---|---|---|
+| `P` diffusion, physical | free IL-6-class cytokine ~100 µm²/s (`Francis1997`, verify); tortuosity cuts small-solute D by 2.6× in tissue (`Sykova2008`, brain proxy); much lower next to fibroblasts in condensed collagen (`Kihara2013`) → 10–40 µm²/s in tissue | 400–1600 px²/MCS (free: ~4000) | do not use directly; see λ row | anchored (range) |
+| `P` decay | IL-6 plasma t½ 3 min fast / 55 min slow phase (`Castell1988`, rat); receptor-mediated internalisation t½ 15 min (`Nesbitt1992`, hepatocytes). No airway-tissue half-life found | 0.24 / 0.0131 / 0.048 /MCS; ODE fallback `m7` 6.9e-4 /MCS (t½ 17 h) | 6.9e-4 /MCS (ODE clock) for the build; 0.0131 /MCS as sensitivity | anchored (proxy) |
+| `P` diffusion length λ = √(D/k) | measured in vivo cytokine range 80–120 µm (`OylerYaniv2017`); "a few cell diameters" when consumers are dense (`Thurley2015`); ~250 µm upper bound for a single cell (`Francis1997`) | 64–96 px | **λ = 100 µm = 80 px**; with k = 6.9e-4 /MCS → **D = 4.4 px²/MCS**; with k = 0.0131 → D = 84 px²/MCS | anchored (λ is the cited quantity; D is derived and uptake-dressed) |
+| `k_P` | no numeric pin. IL-6 alone **speeds** airway epithelial wound closure, dose-dependent: 24 h full closure 15% control vs 28/46/79% at 1/10/100 ng/mL (`Bequignon2020`, nasal, verify); same direction in BEAS-2B (`Wang2012il6`). Smoke **slows** repair (`DiVincenzo2022`, primary bronchial); cytokine mix slows gingival migration (`Basso2016`) | dimensionless | keep 1.0, scan {0, 0.5, 1, 2}; P is read as the exposure milieu, not IL-6 alone | free, sign contested |
+| `k_prolif` | IL-1β-dependent mitogenic effect ~2× in lung fibroblasts, via autocrine IL-6 (`Olman2004`); IL-6 **inhibits** normal lung fibroblast proliferation and is mitogenic only for IPF fibroblasts (`Moodley2003`); suppressive in sarcoid (`Shahar1996`) | dimensionless | keep 0.5 · threshold (P = 1 gives half the gate, ≤ 2× divisions); scan including 0 | free, sign contested; Jones assay 4 must use normal fibroblasts |
+| MMP diffusion | MMP-9 (92 kDa) free ~50 µm²/s (Stokes–Einstein scaling from IgG; estimate, not a citation); macromolecule D 5–10× lower in collagen-rich tissue (`Pluen2001`); MMP-2/-9 diffuse **bound** on collagen fibril surfaces, MMP-9 dimers immobile (`Collier2011`) | free 2000; tissue 200–400 px²/MCS | pericellular: **λ_MMP ≈ 10 µm = 8 px** → D = 0.64 px²/MCS at k = 0.01 | free, stated (direction from `Collier2011`) |
+| MMP decay | active MMP-9 catalytic domain auto-cleaves within minutes (`Bonadio2023`); TIMP-1 inhibition is fast and biphasic (`Vempati2007`); pro-MMP-9 is a stable zymogen and activation needs MMP-9:TIMP > 1 (`RamosDeSimone1999`, TIMP 1–4 nM) | — | keep 0.01 /MCS (t½ 72 min); TIMP stays explicit in `timp_rate` | free (no numeric half-life in abstracts) |
+| activation rate | α-SMA⁺ after 24 h TGF-β1, stable 8 days, fetal and adult lung fibroblasts (`Garrison2013`); MRC-5 α-SMA up at 24 h (`Yap2021`); time- and dose-dependent in human lung fibroblasts (`Hashimoto2001`); full transition at 72 h, gingival proxy (`Marconi2021`) | mean time 24 h = 1385 MCS → **7.2e-4 /MCS**; 72 h = 4154 MCS → 2.4e-4 /MCS. If "1–3 days" is time to 90% converted: 1.7e-3 to 5.5e-4 | **7.2e-4 /MCS of saturating signal**, 2.4e-4 as sensitivity; divide by the `G` level that represents saturating TGF-β1, since the code multiplies by `G` | anchored (literature); Jones assay 2 later |
+| `G` diffusion, physical (added 2026-11-01) | free D of a 25 kDa protein 84–128 µm²/s (`Young1980` correlation; cytokines within 24 % of Stokes–Einstein, `Ross2018`); tortuosity and ECM viscosity cut it 2.6–10× (`Sykova2008`, `Galgoczy2014`, `Pluen2001`); heparan-sulfate binding cuts the remainder by ~60 % in vivo (`Thorne2008`) to an order of magnitude (`Zhu2024`); TGF-β1 is irreversibly matrix-bound (`Dinbergs1996`) and heparin-binding (`McCaffrey1994`) | free 3300–5100 px²/MCS; hindered 400–1600; binding-dressed ≲ 40–160 | do not use directly; see λ_G row. The dressed D is what the solver carries | anchored (mechanism); no direct measurement of TGF-β1 D in tissue found |
+| `G` decay (added 2026-11-01) | active TGF-β1 plasma t½ 2–3 min rat (`Wakefield1990`), 1.6 ± 0.7 min mouse (`Philip1991`); ×3 under heparin/fucoidan in the pericellular space (`McCaffrey1994`); latent complex > 100 min, < 5 % degraded at 90 min (`Wakefield1990`); lung is a sink for circulating active TGF-β1 (`LaMarre1991`). No tissue half-life found | k = 0.24–0.45 /MCS (active, plasma); ≈ 0.08 (heparin-protected); < 0.0072 (latent); current 0.01 /MCS = t½ 72 min | **keep 0.01 /MCS** (latent end; `G` is the lumped active + latent pool) and state it; faster decay forces D ≥ 20 px²/MCS for any cell-scale range | bounded (proxy), not pinned |
+| `G` diffusion length λ_G = √(D/k) (added 2026-11-01) | pSMAD2⁺ cells ~70 µm from TGF-β1-presenting cells, human carcinomas incl. lung (`VanMeerbeeck2025`, verify); TGF-β family short-range in intact tissue (`Jones1996`); signals without release at all — contact range (`Campbell2020`, `Jin2024`); calibrated TGF-β PDE in human skin exists (`Daher2026`, values to verify) | 8–56 px for 10–70 µm; current D = 0.10 gives **3.2 px = 4 µm**, below the range | **scan λ_G ∈ {10, 20, 40, 70} µm = {8, 16, 32, 56} px → D = {0.64, 2.56, 10.2, 31.4} px²/MCS at k = 0.01**; keep D = 0.10 (4 µm) as the contact-only arm. D = 31 needs ~125 solver sub-steps per MCS — run the 70 µm arm once or with the steady-state solver | anchored (range); λ is the cited quantity |
+| `P` diffusion length λ_P, scan range (added 2026-11-01; the 10-30 row above is unchanged) | 80–120 µm in vivo (`OylerYaniv2017`); few cell diameters with dense consumers (`Thurley2015`); 250 µm single-cell ceiling (`Francis1997`); IL-8 immobilised on HS/CS in lung tissue (`Frevert2003`, K_d 0.4–2.6 µM `Kuschert1999`) → shorter; IL-6 only partially GAG-retained (`Ramsden1992`) → longer; direct cytokine D in live tissue slices exists for TNF-α/IFN-γ/IL-2 (`Ross2018`, verify) | 20–96 px for 25–120 µm; current D = 0.10 gives **12 px = 15 µm**, below the range | **scan λ_P ∈ {25, 50, 100, 120} µm = {20, 40, 80, 96} px → D = {0.28, 1.11, 4.44, 6.39} px²/MCS at k = 6.93e-4**; 250 µm (D = 27.7) as one upper arm; D = 0.10 (15 µm) as the GAG-immobilised lower arm | anchored (range) |
+| shared `G`/`P` diffusion rule (added 2026-11-01) | same free D for 21–26 kDa proteins (`Young1980`, `Ross2018`) — **supported**; same tissue-effective D — **not supported**, binding differs (TGF-β1 irreversible `Dinbergs1996` > IL-8 haptotactic `Frevert2003` > IL-6 partial `Ramsden1992`) and measured ranges differ (≤ 70 µm vs 80–120 µm) | equal D fixes λ_P/λ_G = √(k_G/k_P) = 3.8, inside the literature spread 1–10 | if one knob is wanted: **shared D = 2.5–4.5 px²/MCS** (λ_G 20–26 µm, λ_P 76–100 µm, both in range); D = 0.10 puts both below range | stated (modelling convenience, consistent with the literature as a ratio only) |
+
+Corrections and consequences:
+
+- The plan's 1440–4320 MCS used 60 s/MCS. At 62.4 s/MCS it is **1385–4154 MCS**, i.e. 2.4e-4 to 7.2e-4 /MCS.
+- Every physical `P` combination gives λ ≥ 110 µm against a 125 µm-tall band, and the ODE-clock decay gives
+  λ ≈ 1 mm. `P` will be near-uniform across the wall; the 2:1 damaged:healthy contrast (A19a) survives only
+  as a band-scale difference. Consumers 1 and 3 will respond to band-level `P`, not to single damaged cells.
+- FE stability: D = 4.4 px²/MCS needs ~28 internal substeps per MCS; D = 84 needs ~500, which is too slow for
+  20k MCS runs. The 0.0131 /MCS arm should use the steady-state solver or stay a single sensitivity run.

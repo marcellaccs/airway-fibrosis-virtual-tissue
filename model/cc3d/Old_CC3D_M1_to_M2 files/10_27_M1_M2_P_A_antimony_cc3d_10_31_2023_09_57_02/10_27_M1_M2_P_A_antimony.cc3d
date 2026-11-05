@@ -1,0 +1,5 @@
+<Simulation version="4.2.2">
+   <XMLScript Type="XMLScript">Simulation/Tellurium.xml</XMLScript>
+   <PythonScript Type="PythonScript">Simulation/Tellurium.py</PythonScript>
+   <Resource Type="Python">Simulation/TelluriumSteppables.py</Resource>
+</Simulation>

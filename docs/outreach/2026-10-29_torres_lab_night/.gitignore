@@ -1,0 +1,6 @@
+# Large reproducible or re-downloadable images stay out of git (see README.md and histology/CREDITS.md)
+histology/*.png
+histology/*.jpg
+figures/model_schematic_*.png
+figures/virtual_tissue_model_diagram.png
+*.pptx

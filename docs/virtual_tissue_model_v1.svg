@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 760" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 z" fill="#334155"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 z" fill="#1d4ed8"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 z" fill="#15803d"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="920" height="760" fill="#ffffff"/>
+  <text x="460" y="32" text-anchor="middle" font-size="21" font-weight="700" fill="#0f172a">v1 Minimal Model — Subepithelial Fibrosis in the Small Airway</text>
+  <text x="460" y="54" text-anchor="middle" font-size="12.5" fill="#64748b">Supersedes virtual_tissue_model_diagram.svg for the v1 build (2026-07-26). No macrophages in the tissue layer.</text>
+
+  <!-- ODE signal layer -->
+  <rect x="180" y="76" width="560" height="92" rx="10" fill="#eef2ff" stroke="#4338ca" stroke-width="2"/>
+  <text x="460" y="106" text-anchor="middle" font-size="17" font-weight="700" fill="#3730a3">ODE Signal Layer (published model)</text>
+  <text x="460" y="127" text-anchor="middle" font-size="12.5" fill="#4338ca">epithelium (E_h / E_d) &#183; macrophages (M0 / M1 / M2) &#183; cytokines (P / A)</text>
+  <text x="460" y="147" text-anchor="middle" font-size="11.5" fill="#64748b">reduced by averaging over one exposure cycle; output drifts slowly across cycles</text>
+  <text x="460" y="163" text-anchor="middle" font-size="11" font-style="italic" fill="#94a3b8">macrophages live here only</text>
+
+  <!-- coupling arrows -->
+  <line x1="360" y1="168" x2="360" y2="266" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+  <rect x="256" y="192" width="208" height="46" rx="6" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.3"/>
+  <text x="360" y="210" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1d4ed8">S_M2 (cumulative exposure)</text>
+  <text x="360" y="228" text-anchor="middle" font-size="11" fill="#1d4ed8">uniform additive source &#8594; GF field</text>
+
+  <line x1="600" y1="168" x2="600" y2="266" stroke="#15803d" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+  <rect x="496" y="192" width="208" height="46" rx="6" fill="#ffffff" stroke="#15803d" stroke-width="1.3"/>
+  <text x="600" y="210" text-anchor="middle" font-size="12.5" font-weight="700" fill="#15803d">R_fib (cumulative exposure)</text>
+  <text x="600" y="228" text-anchor="middle" font-size="11" fill="#15803d">fibroblast recruitment at boundary</text>
+
+  <!-- P demoted note -->
+  <text x="120" y="205" text-anchor="middle" font-size="11" font-weight="600" fill="#b91c1c">P kept as ODE</text>
+  <text x="120" y="220" text-anchor="middle" font-size="11" font-weight="600" fill="#b91c1c">scalar only in v1</text>
+  <text x="120" y="235" text-anchor="middle" font-size="10.5" font-style="italic" fill="#94a3b8">(no spatial P field</text>
+  <text x="120" y="249" text-anchor="middle" font-size="10.5" font-style="italic" fill="#94a3b8">until EMT is added)</text>
+
+  <!-- Tissue container -->
+  <rect x="150" y="270" width="620" height="440" rx="12" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>
+  <text x="460" y="294" text-anchor="middle" font-size="16" font-weight="700" fill="#0f172a">Tissue Model (CompuCell3D) — airway-wall cross-section, outer &#8594; inner</text>
+
+  <!-- Fixed outer boundary -->
+  <rect x="162" y="306" width="596" height="26" rx="4" fill="#f1f5f9" stroke="#64748b" stroke-width="1.4" stroke-dasharray="5 3"/>
+  <text x="460" y="323" text-anchor="middle" font-size="11.5" font-weight="600" fill="#475569">fixed outer boundary (non-deformable) &#183; biases growth inward &#183; ASM slot for v2</text>
+
+  <!-- Subepithelial compartment -->
+  <rect x="162" y="340" width="596" height="152" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="176" y="362" font-size="14" font-weight="700" fill="#166534">Subepithelial compartment (lamina propria)</text>
+  <text x="176" y="381" font-size="12" fill="#14532d">fibroblasts &#183; myofibroblasts &#8212; MOBILE, chemotactic</text>
+  <text x="176" y="398" font-size="12" fill="#14532d">mobile GF source (myofibroblast low) &#183; ECM deposited HERE &#8594; wall thickening</text>
+
+  <g font-size="12.5" font-weight="600">
+    <rect x="196" y="418" width="92" height="34" rx="17" fill="#ffffff" stroke="#ef4444" stroke-width="1.5"/>
+    <text x="242" y="440" text-anchor="middle" fill="#b91c1c">fibroblast</text>
+    <line x1="288" y1="435" x2="348" y2="435" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="318" y="428" text-anchor="middle" font-size="10.5" font-weight="400" fill="#475569">GF</text>
+    <rect x="350" y="418" width="110" height="34" rx="17" fill="#ffffff" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="405" y="440" text-anchor="middle" fill="#b45309">myofibroblast</text>
+    <line x1="460" y1="435" x2="520" y2="435" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="522" y="418" width="96" height="34" rx="8" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="570" y="440" text-anchor="middle" fill="#0f172a">&#8593; ECM</text>
+  </g>
+  <text x="176" y="475" font-size="11" font-style="italic" fill="#475569">differentiation threshold on LOCAL GF concentration &#183; chemotaxis on &#8711;GF (uniform S_M2 adds no gradient)</text>
+
+  <!-- Epithelial layer -->
+  <rect x="162" y="500" width="596" height="80" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5"/>
+  <text x="176" y="522" font-size="14" font-weight="700" fill="#854d0e">Epithelial layer &#8212; STATIONARY</text>
+  <text x="176" y="541" font-size="12" fill="#713f12">healthy &#8644; damaged &#183; stationary GF source (damaged cells) &#183; adhesion holds the sheet together</text>
+  <text x="176" y="558" font-size="12" fill="#713f12">damaged-cell seeding pattern (focal vs diffuse) sets WHERE the lesion initiates</text>
+  <text x="176" y="574" font-size="11" font-style="italic" fill="#a16207">v2 only: EMT to mesenchymal, driven by pro-inflammatory signal</text>
+
+  <!-- Lumen -->
+  <rect x="162" y="588" width="596" height="56" rx="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+  <text x="176" y="610" font-size="14" font-weight="700" fill="#075985">Lumen</text>
+  <text x="176" y="629" font-size="12" fill="#0c4a6e">narrows as a CONSEQUENCE of wall thickening &#183; area reported as geometry only, not resistance</text>
+
+  <!-- ECM/thickening arrow pointing inward toward lumen -->
+  <line x1="690" y1="492" x2="690" y2="586" stroke="#0284c7" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#arrowBlue)"/>
+  <text x="706" y="540" font-size="10.5" fill="#0369a1">inward</text>
+  <text x="706" y="553" font-size="10.5" fill="#0369a1">encroachment</text>
+
+  <!-- Readouts -->
+  <rect x="162" y="652" width="596" height="46" rx="6" fill="#ffffff" stroke="#0f172a" stroke-width="1.2"/>
+  <text x="176" y="670" font-size="12.5" font-weight="700" fill="#0f172a">Readouts:</text>
+  <text x="246" y="670" font-size="12" fill="#334155">collagen area fraction (primary) &#183; subepithelial thickness &#183; myofibroblast density &#183; lumen area</text>
+  <text x="176" y="688" font-size="11" font-style="italic" fill="#64748b">all dimensionless / relative to baseline &#8212; no &#181;m or MCS-to-hours mapping in v1</text>
+
+  <!-- Fields legend -->
+  <rect x="150" y="716" width="620" height="38" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="162" y="734" font-size="12" font-weight="700" fill="#334155">Fields (v1):</text>
+  <text x="238" y="734" font-size="11.5" fill="#475569">&#8226; growth-factor field &#8212; stationary source: damaged epithelium; mobile source: fibroblasts; uniform pedestal: S_M2</text>
+  <text x="162" y="748" font-size="11.5" fill="#475569">&#8226; ECM field (myofibroblasts)     &#8226; explicit decay term required     &#8226; no-flux lateral boundaries     &#8226; MMP field and P field: v2</text>
+</svg>

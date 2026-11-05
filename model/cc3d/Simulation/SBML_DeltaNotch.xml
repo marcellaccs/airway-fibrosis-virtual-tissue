@@ -1,0 +1,56 @@
+<CompuCell3D Revision="20190811" Version="4.0.0">
+   
+   <Metadata>
+      
+      <!-- Basic properties simulation -->
+      <NumberOfProcessors>1</NumberOfProcessors>
+      <DebugOutputFrequency>10</DebugOutputFrequency>
+      <!-- <NonParallelModule Name="Potts"/> -->
+   </Metadata>
+
+
+   <Potts>
+      
+      <!-- Basic properties of CPM (GGH) algorithm -->
+      <Dimensions x="42" y="42" z="1"/>
+      <Steps>100000</Steps>
+      <Temperature>10.0</Temperature>
+      <NeighborOrder>1</NeighborOrder>
+      <Boundary_x>Periodic</Boundary_x>
+      <Boundary_y>Periodic</Boundary_y>
+   </Potts>
+
+   <Plugin Name="CellType">
+       <!-- Listing all cell types in the simulation -->
+       <CellType TypeId="0" TypeName="Medium"/>
+       <CellType TypeId="1" TypeName="CellA"/>
+   </Plugin>
+   
+
+   <Plugin Name="Volume"/>
+   
+   <Plugin Name="NeighborTracker">
+      
+      <!-- Module tracking neighboring cells of each cell -->
+   </Plugin>
+   
+   <Plugin Name="Contact">
+       <!-- Specification of adhesion energies -->
+       <Energy Type1="Medium" Type2="Medium">10.0</Energy>
+       <Energy Type1="Medium" Type2="CellA">10.0</Energy>
+       <Energy Type1="CellA" Type2="CellA">10.0</Energy>
+       <NeighborOrder>4</NeighborOrder>
+   </Plugin>
+
+   <Steppable Type="UniformInitializer">
+      
+      <!-- Initial layout of cells in the form of rectangular slab -->
+      <Region>
+         <BoxMin x="0" y="0" z="0"/>
+         <BoxMax x="42" y="42" z="1"/>
+         <Gap>0</Gap>
+         <Width>7</Width>
+         <Types>CellA</Types>
+      </Region>
+   </Steppable>
+</CompuCell3D>

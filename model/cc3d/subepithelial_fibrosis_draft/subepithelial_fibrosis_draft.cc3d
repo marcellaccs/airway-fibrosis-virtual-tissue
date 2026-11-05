@@ -1,0 +1,7 @@
+<Simulation version="4.9.0">
+   <XMLScript Type="XMLScript">Simulation/Subepithelial_Fibrosis.xml</XMLScript>
+   <PythonScript Type="PythonScript">Simulation/Subepithelial_Fibrosis.py</PythonScript>
+   <Resource Type="Python">Simulation/Subepithelial_FibrosisSteppables.py</Resource>
+   <Resource Type="Python">Simulation/parameters.py</Resource>
+   <ParameterScan Type="ParameterScan">Simulation/ParameterScanSpecs.json</ParameterScan>
+</Simulation>

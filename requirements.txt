@@ -1,0 +1,8 @@
+# ODE modeling + analysis (CompuCell3D is installed separately)
+tellurium
+numpy
+scipy
+matplotlib
+pandas
+SALib
+jupyter

@@ -1,0 +1,41 @@
+# --- OS / Google Drive artifacts ---
+desktop.ini
+.DS_Store
+Thumbs.db
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+*.egg-info/
+
+# --- CompuCell3D run artifacts ---
+*_settings.sqlite
+_settings.sqlite
+*.sqlite
+CallableCC3DOutput/
+**/Simulation/__pycache__/
+# Timestamped output dumps CC3D writes to the CWD when no --output-dir is given
+*_cc3d_*/
+
+# --- Large / reproducible outputs (keep folders via .gitkeep) ---
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+results/*
+!results/.gitkeep
+
+# --- Literature PDFs stay in Zotero, never in git ---
+literature/**/*.pdf
+
+# --- CC3D workshop materials (slides, zips) -- not project output ---
+cc3d expertise/
+
+# --- Secrets ---
+*.env
+.env
+secrets.*

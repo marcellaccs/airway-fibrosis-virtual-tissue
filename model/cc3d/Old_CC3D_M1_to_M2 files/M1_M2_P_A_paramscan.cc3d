@@ -1,0 +1,7 @@
+<Simulation version="4.4.1">
+   <XMLScript Type="XMLScript">Simulation/M1_M2.xml</XMLScript>
+   <PythonScript Type="PythonScript">Simulation/M1_M2.py</PythonScript>
+   <Resource Type="Python">Simulation/M1_M2Steppables.py</Resource>
+   <Resource Type="Python">Simulation/parameters.py</Resource>
+   <ParameterScan Type="ParameterScan">Simulation/ParameterScanSpecs.json</ParameterScan>
+</Simulation>

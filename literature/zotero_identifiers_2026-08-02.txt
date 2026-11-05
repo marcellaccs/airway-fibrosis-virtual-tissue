@@ -1,0 +1,87 @@
+Zotero "Add Item by Identifier" list — 2026-08-02
+=================================================
+
+HOW TO USE
+  Zotero desktop -> click the green wand icon in the toolbar (Add Item by Identifier)
+  -> paste the block below (it accepts multiple identifiers, one per line) -> Enter.
+  Zotero fetches full metadata AND the open-access PDF for each.
+  Select the target collection FIRST, so they land in the right place.
+
+  All 15 below were verified by efetch against title, authors, journal and year.
+  Three initial search hits were WRONG papers and were discarded, so do not
+  re-derive this list from a title search without checking.
+
+PASTE THIS
+----------
+10.3892/etm.2021.10622
+10.1152/ajplung.00229.2022
+10.1183/09031936.00192611
+10.1186/1471-2466-14-90
+10.1513/pats.200907-079DP
+10.1371/journal.pone.0182378
+10.1186/1465-9921-14-84
+10.1371/journal.pone.0313992
+10.1186/s12931-026-03536-2
+10.1038/s41598-022-18123-w
+10.1136/thoraxjnl-2012-201761
+10.1016/j.toxlet.2025.05.002
+10.3389/fphys.2019.01481
+10.1183/23120541.00876-2020
+10.1371/journal.pcbi.1011741
+10.1073/pnas.1117988108
+
+
+WHAT EACH ONE IS (cite key -> PMID -> DOI)
+------------------------------------------
+Tan2021            34475978   10.3892/etm.2021.10622          Exp Ther Med 2021
+HompsLegrand2023   36976924   10.1152/ajplung.00229.2022      Am J Physiol Lung 2023
+Annoni2012         22496324   10.1183/09031936.00192611       Eur Respir J 2012
+Eurlings2014       24886452   10.1186/1471-2466-14-90         BMC Pulm Med 2014
+Hogg2009           20008873   10.1513/pats.200907-079DP       Proc Am Thorac Soc 2009
+Boser2017          28787016   10.1371/journal.pone.0182378    PLoS ONE 2017
+Karvonen2013       23937155   10.1186/1465-9921-14-84         Respir Res 2013
+TeitzTennenbaum2025 39854594  10.1371/journal.pone.0313992    PLoS ONE 2025
+Roop2026           41639734   10.1186/s12931-026-03536-2      Respir Res 2026
+Yoshizawa2022      35982187   10.1038/s41598-022-18123-w      Sci Rep 2022
+Milara2013         23299965   10.1136/thoraxjnl-2012-201761   Thorax 2013
+Huang2025          40345267   10.1016/j.toxlet.2025.05.002    Toxicol Lett 2025
+Rikard2019         31920691   10.3389/fphys.2019.01481        Front Physiol 2019
+Eapen2021          34109247   10.1183/23120541.00876-2020     ERJ Open Res 2021
+Islam2023          38127835   10.1371/journal.pcbi.1011741    PLoS Comput Biol 2023
+Rock2011           22123957   10.1073/pnas.1117988108         PNAS 2011
+
+
+NOT IN PUBMED — add these by hand or from the publisher page
+-------------------------------------------------------------
+Kong2023        ERS Congress abstract. Not indexed. Conference abstract; consider
+                replacing with a peer-reviewed successor before citing in a manuscript.
+Higham2022      ERS Congress abstract. Not indexed. Same caveat.
+                NOTE: this is a key validation source (luminal narrowing 22% vs 10%),
+                so the numbers need the full abstract PDF from the ERS site.
+Suzuki2010      ATS Conference abstract. Not indexed. Same caveat.
+Gunputh2026     bioRxiv preprint. Has a DOI on the bioRxiv page; not retrieved here.
+Hung2020        Curr Tissue Microenviron Rep — journal not indexed in PubMed.
+                CAUTION: a title search returns PMID 16738204, which is a DIFFERENT
+                paper (Willis, duBois & Borok 2006, "Epithelial origin of myofibroblasts
+                during fibrosis in the lung"). Do not accept that match.
+Li2024          Ecotoxicol Environ Saf 2024. Title search returned nothing; the
+                hyphenated "related-PM2.5" appears to break the title index. Look up
+                from the journal page.
+
+
+CORRECTED AUTHOR LISTS PICKED UP ALONG THE WAY
+-----------------------------------------------
+Karvonen2013    CONFIRMED as Karvonen HM et al. (was flagged unverified in
+                references.bib). Full list: Karvonen HM, Lehtonen ST, Harju T,
+                Sormunen RT, Lappi-Blanco E, Makinen JM, Laitakari K, Johnson S,
+                Kaarteenaho RL.
+Roop2026        Roop B, Calmo NM, Bass A, Berigei S, Knipe R, Santos D, DeCoursey A,
+                Lee G, Turner S, Herrmann M, Nandy S, Hariri L.
+Rock2011        Rock JR, Barkauskas CE, Cronce MJ, Xue Y, Harris JR, Liang J,
+                Noble PW, Hogan BL.
+Eapen2021       Eapen MS, Lu W, Hackett TL, Singhera GK, Mahmood MQ, Hardikar A,
+                Ward C, Walters EH, Sohal SS.
+Annoni2012      Annoni R, Lancas T, Yukimatsu Tanigawa R, de Medeiros Matsushita M,
+                de Morais Fernezlian S, Bruno A, Fernando Ferraz da Silva L,
+                Roughley PJ, Battaglia S, Dolhnikoff M, Hiemstra PS, Sterk PJ,
+                Rabe KF, Mauad T.

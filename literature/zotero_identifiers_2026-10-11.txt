@@ -1,0 +1,8 @@
+# Gate E1 bibliography batch — paste into Zotero's Add Item by Identifier (green wand).
+# Started 2026-10-28. Add DOIs here as they are confirmed; one per line.
+# Bennet2026 — airway-on-chip whole wood smoke, ALI co-culture (PDF in chat upload only)
+10.1038/s41598-026-69468-5
+# Kong2026 — peer-reviewed successor to the Kong2023 ERS abstract (replaces it)
+10.1186/s12931-026-03798-w
+# Chandrasegaran2025 — ECM cell type precedent (PDF already in cc3d_lit)
+10.1371/journal.pcbi.1012298
